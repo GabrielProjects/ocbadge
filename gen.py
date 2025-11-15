@@ -37,7 +37,28 @@ TEMPLATE_COLOR_PALETTES = {
 }
 
 def resolve_fullname(player_data):
-    return f'{player_data["name"]} {player_data["surname"]} ({player_data["nickname"]})'
+    # Safely extract fields, falling back to other possible keys or empty string
+    name = player_data.get("name") or player_data.get("first_name") or ""
+    surname = player_data.get("surname") or player_data.get("last_name") or ""
+    nickname = (
+        player_data.get("nickname")
+        or player_data.get("nick")
+        or player_data.get("username")
+        or ""
+    )
+
+    # Build a readable full name depending on what exists
+    parts = [p for p in [name, surname] if p]
+
+    if parts and nickname:
+        return f'{" ".join(parts)} ({nickname})'
+    elif parts:
+        return " ".join(parts)
+    elif nickname:
+        return nickname
+
+    # Worst-case fallback (you can customize this)
+    return "Unknown player"
 
 def find_scoreboard_position(player_data):
     display_name = resolve_fullname(player_data)
